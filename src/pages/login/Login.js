@@ -6,9 +6,12 @@ import logo from '../../assets/logo.svg';
 
 function Login({ history }) {
     const [username, setUsername] = useState('');
+    const [isLoading, setLoading] = useState(false);
 
     function handleSubmit(e) {
         e.preventDefault();
+
+        setLoading(true);
         
         api.post('devs', { username }).then(res => {
             const { _id } = res.data;
@@ -16,6 +19,8 @@ function Login({ history }) {
             history.push(`/dev/${_id}`);
         }).catch(err => {
             console.log(err.status);
+
+            setLoading(false);
         });
     }
 
@@ -29,7 +34,13 @@ function Login({ history }) {
                     value={username}
                     onChange={e => setUsername(e.target.value)}
                 />
-                <button type="submit" onClick={handleSubmit}>Enviar</button>
+                <button 
+                    type="submit"
+                    disabled={isLoading}
+                    onClick={handleSubmit}
+                >
+                    {isLoading ? 'Carregando...' : 'Enviar'}
+                </button>
             </form>
         </div>
     );

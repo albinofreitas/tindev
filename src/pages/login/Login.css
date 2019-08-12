@@ -37,3 +37,7 @@
     color: #fff;
     cursor: pointer;
 }
+
+.login-container form button:disabled {
+    opacity: 0.8;
+}
