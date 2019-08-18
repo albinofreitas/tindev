@@ -29,7 +29,7 @@ function Main({ match }) {
   }, [user]);
 
   useEffect(() => {
-    const socket = io.connect('http://localhost:4000', {
+    const socket = io.connect(process.env.REACT_APP_API_URL, {
       query: { user },
     });
 
