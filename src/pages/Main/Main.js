@@ -1,34 +1,48 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import io from 'socket.io-client';
+import { Link } from 'react-router-dom';
 
-import api from "../../services/api";
+import api from '../../services/api';
 
-import "./Main.css";
-import logo from "../../assets/logo.svg";
-import like from "../../assets/like.svg";
-import dislike from "../../assets/dislike.svg";
+import './Main.css';
+import Match from '../../components/Match';
+import logo from '../../assets/logo.svg';
+import like from '../../assets/like.svg';
+import dislike from '../../assets/dislike.svg';
+
 
 function Main({ match }) {
   const [users, setUsers] = useState([]);
+  const [matchDev, setMatchDev] = useState(null);
 
   const { id: user } = match.params;
 
   useEffect(() => {
     api
-      .get("/devs", {
+      .get('/devs', {
         headers: {
-          user
-        }
+          user,
+        },
       })
       .then(({ data }) => setUsers(data))
       .catch(err => console.log(err));
   }, [user]);
 
+  useEffect(() => {
+    const socket = io.connect('http://localhost:4000', {
+      query: { user },
+    });
+
+    socket.on('match', dev => {
+      setMatchDev(dev);
+    });
+  }, [user]);
+
   async function handleDislike(id) {
     await api.post(`devs/${id}/dislikes`, null, {
       headers: {
-        user
-      }
+        user,
+      },
     });
 
     setUsers(users.filter(user => user._id !== id));
@@ -37,8 +51,8 @@ function Main({ match }) {
   async function handleLike(id) {
     await api.post(`devs/${id}/likes`, null, {
       headers: {
-        user
-      }
+        user,
+      },
     });
 
     setUsers(users.filter(user => user._id !== id));
@@ -73,6 +87,8 @@ function Main({ match }) {
       ) : (
         <div className="empty">Acabou :(</div>
       )}
+
+      { matchDev && <Match dev={matchDev} setMatchDev={setMatchDev} />}
     </div>
   );
 }
